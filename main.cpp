@@ -1,123 +1,90 @@
 #include <iostream>
 #include <vector>
+#include "set"
 
 using namespace std;
 
 class Node{
+public:
     int val;
     int height = 0;
-    Node* left_child;
-    Node* right_child;
-    Node* parent;
+    Node* left_child = nullptr;
+    Node* right_child = nullptr;
+    Node* parent = nullptr;
 public:
-    Node(int);
-    void set_parent(Node*);
-    void set_left_child(Node*);
-    void set_right_child(Node*);
-    void set_val(int);
-    int get_val();
-    int get_height();
-    void set_height(int);
-    Node* get_parent();
-    Node* get_left_child();
-    Node* get_right_child();
+    Node();
+    Node(int, int);
 };
 
-void Node::set_parent(Node * node) {
-    parent = node;
-}
-
-void Node::set_left_child(Node * node) {
-    left_child = node;
-}
-
-void Node::set_right_child(Node * node) {
-    right_child = node;
-}
-
-void Node::set_val(int Val) {
-    val = Val;
-}
-
-int Node::get_val() {
-    return val;
-}
-
-Node *Node::get_parent() {
-    return parent;
-}
-
-Node *Node::get_left_child() {
-    return left_child;
-}
-
-Node *Node::get_right_child() {
-    return right_child;
-}
-
-Node::Node(int i) {
+Node::Node(int i, int h) {
     val = i;
+    height = h;
     parent = nullptr;
     left_child = nullptr;
     right_child = nullptr;
 }
 
-int Node::get_height() {
-    return height;
+Node::Node() {
+    val = 0;
+    height = 0;
+    left_child = nullptr;
+    right_child = nullptr;
+    parent = nullptr;
 }
 
-void Node::set_height(int h) {
-    height = h;
-}
-
-class BinaryTree{
-    Node* start;
-    int height;
-public:
-    BinaryTree(int);
-    int get_height();
-    Node* get_start();
-    void create(int&, vector<int>&, Node*);
-};
-
-BinaryTree::BinaryTree(int v) {
-    Node start_(v);
-    start = &start_;
-    start->set_parent(nullptr);
-    start->set_height(1);
-}
-
-void BinaryTree::create(int & i, vector<int> & v, Node* parent) {
-    Node node(v[i]);
-    if(parent->get_val() > node.get_val()){
-        parent->set_left_child(&node);
-        node.set_parent(parent);
-        i++;
-        node.set_height(parent->get_height());
-        if(node.get_height() > height) height = node.get_height();
-        create(i, v, &node);
-    }
-    else if(parent->get_val() < node.get_val()){
-        create(i, v, parent->get_parent());
+void show(Node *&Tree){
+    if (Tree != nullptr){
+        show(Tree->left_child);
+        cout << Tree->val;
+        show(Tree->right_child);
     }
 }
 
-int BinaryTree::get_height() {
-    return height;
-}
-
-Node *BinaryTree::get_start() {
-    return start;
+void Insert(int x, Node *&tree, int& h) {
+    if (nullptr == tree){
+        tree = new Node;
+        tree->val = x;
+        tree->height = 1;
+        tree->left_child = tree->right_child = nullptr;
+    }
+    if (x < tree->val){
+        if (tree->left_child != nullptr) Insert(x,tree->left_child, h);
+        else{
+            tree->left_child = new Node;
+            tree->left_child->left_child = tree->left_child->right_child = nullptr;
+            tree->left_child->val = x;
+            tree->left_child->height = tree->height + 1;
+            if(h < tree->left_child->height) h = tree->left_child->height;
+        }
+    }
+    if (x > tree->val){
+        if (tree->right_child != nullptr) Insert(x, tree->right_child, h);
+        else{
+            tree->right_child = new Node;
+            tree->right_child->left_child = tree->right_child->right_child = nullptr;
+            tree->right_child->val = x;
+            tree->right_child->height = tree->height + 1;
+            if(h < tree->right_child->height) h = tree->right_child->height;
+        }
+    }
 }
 
 int main() {
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    for(int i = 0;i < n;i++) cin >> v[i];
-    BinaryTree tree(v[0]);
-    int i = 1;
-    tree.create(i, v, tree.get_start());
-    cout << tree.get_height() << endl;
+    vector<int> v;
+    set<int> s;
+    while(true){
+        int a;
+        cin >> a;
+        if(a == 0) break;
+        if(s.count(a) == 0){
+            v.push_back(a);
+            s.insert(a);
+        }
+    }
+    Node *Tree = nullptr;
+    int h = 1;
+    for(int i = 0; i< v.size();i++)
+        Insert(v[i],Tree, h);
+    cout << h << endl;
     return 0;
 }
